@@ -1,0 +1,53 @@
+PLUGIN_DIR="$CONFIG_DIR/plugins"
+ITEM_DIR="$CONFIG_DIR/items"
+
+source "$CONFIG_DIR/settings.sh"
+
+sketchybar --bar "${bar[@]}" --default "${default[@]}"
+
+sketchybar --add item apple left \
+	   --set apple icon= icon.font.size=20 padding_right=7
+
+##### Adding Mission Control Space Indicators ######
+
+SPACE_ICONS=("1" "2" "3" "4" "5" "6" "7" "8" "9" "10")
+for i in "${!SPACE_ICONS[@]}"
+do
+  sid="$(($i+1))"
+  space=(
+    space="$sid"
+    icon="${SPACE_ICONS[i]}"
+    icon.padding_left=7
+    icon.padding_right=7
+    background.color=0x40ffffff
+    background.corner_radius=5
+    background.height=25
+    label.drawing=off
+    script="$PLUGIN_DIR/space.sh"
+    click_script="yabai -m space --focus $sid"
+  )
+  sketchybar --add space space."$sid" left --set space."$sid" "${space[@]}"
+done
+
+##### Adding Left Items #####
+
+sketchybar --add item chevron left \
+           --set chevron icon= label.drawing=off \
+           --add item front_app left \
+           --set front_app icon.drawing=off script="$PLUGIN_DIR/front_app.sh" \
+           --subscribe front_app front_app_switched
+
+##### Adding Right Items #####
+
+sketchybar --add item clock right \
+           --set clock update_freq=10  script="$PLUGIN_DIR/clock.sh"
+
+
+source $ITEM_DIR/battery.sh
+source $ITEM_DIR/cpu.sh
+source $ITEM_DIR/ram.sh
+
+source $ITEM_DIR/network_rates.sh
+source $ITEM_DIR/network.sh
+
+sketchybar --update
